@@ -45,7 +45,10 @@ class Store:
         self._save_to(data_dir / "db-pre_autofill.json")
         self.autofill()
 
-        shutil.copy2(data_dir / "db.json", data_dir / "db.bak.json")
+        try:
+            shutil.copy2(data_dir / "db.json", data_dir / "db.bak.json")
+        except FileNotFoundError:
+            pass
         self._save_to(data_dir / "db.json")
         return data_dir / "db.json"
 

@@ -6,6 +6,7 @@ import subprocess
 
 from store import Store
 import history_source
+from env_manager import CredentialsNotProvidedException
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,8 +22,16 @@ parser.add_argument("--rclone-remote", type=str, default="")
 
 def main():
     args = parser.parse_args()
-    store = Store.from_file(args.data_dir / "db.json")
-    history_source.update_store(store)
+    db_file = args.data_dir / "db.json"
+    if db_file.exists():
+        store = Store.from_file(args.data_dir / "db.json")
+    else:
+        store = Store([])
+    try:
+        history_source.update_store(store)
+    except CredentialsNotProvidedException:
+        logger.error("Credentials not provided. Set EMAIL and PASSWORD env variables or provide .env file.")
+        exit(1)
     db_file = store.save(args.data_dir)
     remote = args.rclone_remote
     if remote:

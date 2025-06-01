@@ -2,6 +2,7 @@
 .ruff_cache
 __pycache__
 .mypy_cache
+.venv
 # project specific
 .env
 /token.txt

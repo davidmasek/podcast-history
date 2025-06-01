@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from dotenv import dotenv_values
 
+class CredentialsNotProvidedException(Exception):
+    pass
 
 def get_credentials() -> tuple[str, str]:
     username = os.environ.get("EMAIL")
@@ -15,7 +17,7 @@ def get_credentials() -> tuple[str, str]:
             password = config["PASSWORD"]
 
     if not username:
-        raise RuntimeError("Cannot find EMAIL")
+        raise CredentialsNotProvidedException("Cannot find EMAIL")
     if not password:
-        raise RuntimeError("Cannot find PASSWORD")
+        raise CredentialsNotProvidedException("Cannot find PASSWORD")
     return username, password
