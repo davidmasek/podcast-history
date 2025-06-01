@@ -1,0 +1,8 @@
+# general
+.ruff_cache
+__pycache__
+.mypy_cache
+# project specific
+.env
+/token.txt
+/data

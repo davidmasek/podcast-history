@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Podcast Episode Browser</title>
+  <style>
+    :root {
+      --bg-main:#f8f9fa;
+      --bg-card:#ffffff;
+      --bg-row-alt:#f1f3f5;
+      --txt-muted:#555;
+      --txt-done:#2e7d32;
+      --txt-todo:#c62828;
+    }
+
+    body{font-family:system-ui,sans-serif;margin:2rem;background:var(--bg-main);}
+    #controls{margin-bottom:1.5rem;}
+    #content{display:grid;gap:2rem;}
+    section{background:var(--bg-card);border-radius:0.75rem;padding:1rem 1.25rem;box-shadow:0 2px 6px rgba(0,0,0,.08);}   
+    h2{margin:0 0 0.75rem;font-size:1.25rem;}
+
+    /* Episode rows */
+    ul{list-style:none;padding:0;margin:0;}
+    li{display:grid;grid-template-columns:1fr auto auto;gap:0.75rem;align-items:center;padding:0.3rem 0.4rem;}
+    li:nth-child(odd){background:var(--bg-row-alt);border-radius:0.25rem;}
+    .date{font-size:0.9rem;color:var(--txt-muted);white-space:nowrap;}
+    .finished{font-size:0.9rem;font-weight:600;}
+    li.done .finished{color:var(--txt-done);}   
+    li.todo .finished{color:var(--txt-todo);}   
+  </style>
+</head>
+<body>
+  <h1>Podcast Episode Browser</h1>
+
+  <div id="controls">
+    <label>Choose JSON file: <input type="file" id="fileInput" accept=".json" /></label>
+  </div>
+
+  <div id="content"></div>
+
+  <script>
+    // Group by key → {key: []}
+    function groupBy(arr,key){return arr.reduce((acc,o)=>{const k=o[key]??'Unknown Podcast';(acc[k]=acc[k]||[]).push(o);return acc;},{});}
+
+    function render(episodes){
+      const container=document.getElementById('content');
+      container.innerHTML='';
+      const grouped=groupBy(episodes,'podcast_title');
+
+      Object.entries(grouped).forEach(([title,eps])=>{
+        eps.sort((a,b)=>new Date(b.published)-new Date(a.published));
+
+        const section=document.createElement('section');
+        section.innerHTML=`<h2>${title}</h2>`;
+        const ul=document.createElement('ul');
+
+        eps.forEach(ep=>{
+          const li=document.createElement('li');
+          li.className=`episode ${ep.finished?'done':'todo'}`;
+
+          const titleSpan=document.createElement('span');
+          titleSpan.textContent=ep.title;
+
+          const dateSpan=document.createElement('span');
+          dateSpan.className='date';
+          dateSpan.textContent=new Date(ep.published).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+
+          const finishedSpan=document.createElement('span');
+          finishedSpan.className='finished';
+          finishedSpan.textContent=ep.finished?'✓':'•';
+
+          li.appendChild(titleSpan);
+          li.appendChild(dateSpan);
+          li.appendChild(finishedSpan);
+          ul.appendChild(li);
+        });
+
+        section.appendChild(ul);
+        container.appendChild(section);
+      });
+    }
+
+    document.getElementById('fileInput').addEventListener('change',e=>{
+      const file=e.target.files[0];
+      if(!file)return;
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        try{render(JSON.parse(ev.target.result));}
+        catch(err){alert('Could not parse JSON: '+err.message);}
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
