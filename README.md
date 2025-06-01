@@ -53,6 +53,27 @@ This is intentional and by design. Tracking unfinished or in-progress episodes i
 
 The "unofficial" API `https://api.pocketcasts.com/user/history` endpoint is used. This is the endpoint used by the web and mobile clients.
 
-## Manual Input
+### Manual Input
 
 Currently all the data is stored in a simple JSON file. You can easily modify the file as needed.
+
+
+## Backups
+
+Backup with Rclone is supported with the `--rclone-remote` CLI option. Configured [Rclone](https://rclone.org/docs/) is required.
+
+```sh
+python3 main.py --rclone-remote gdrive
+```
+
+You can also backup the generated files in any other way you're used to.
+
+
+## Dev
+
+```sh
+ruff format
+ruff check
+mypy .
+pytest
+```

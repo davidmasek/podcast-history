@@ -10,11 +10,12 @@ logger = logging.getLogger(__name__)
 
 class Store:
     episodes: list[Episode]
+
     def __init__(self, episodes: list[Episode]):
         self.episodes = episodes
 
     @staticmethod
-    def from_file(file: Path) -> 'Store':
+    def from_file(file: Path) -> "Store":
         if not file.exists():
             raise ValueError(f"{file} does not exist")
         with open(file) as fh:
@@ -39,13 +40,14 @@ class Store:
             logger.info(f"Saving to {fh}")
             json.dump([ep.to_dict() for ep in self.episodes], fh, indent=2)
 
-    def save(self, data_dir: Path) -> None:
+    def save(self, data_dir: Path) -> Path:
         data_dir.mkdir(parents=True, exist_ok=True)
         self._save_to(data_dir / "db-pre_autofill.json")
         self.autofill()
 
         shutil.copy2(data_dir / "db.json", data_dir / "db.bak.json")
         self._save_to(data_dir / "db.json")
+        return data_dir / "db.json"
 
     def autofill(self) -> None:
         podcasts: dict[str, dict[str, list]] = {}
